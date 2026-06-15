@@ -3,7 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Modern Engineering Calculator with scientific functions, unit converter, and PWA support">
+    <meta name="theme-color" content="#1e3c72">
     <title>Engineering Calculator</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%231e3c72' width='192' height='192'/><text x='96' y='120' font-size='100' font-weight='bold' text-anchor='middle' fill='%2300d4ff' font-family='Arial'>∫</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect fill='%231e3c72' width='180' height='180'/><text x='90' y='110' font-size='90' font-weight='bold' text-anchor='middle' fill='%2300d4ff' font-family='Arial'>∫</text></svg>">
     <style>
         * {
             margin: 0;
@@ -11,14 +16,70 @@
             box-sizing: border-box;
         }
 
+        :root {
+            --bg-primary: #0f1419;
+            --bg-secondary: #1a2a3a;
+            --text-primary: #00d4ff;
+            --border-color: #2a5298;
+            --bg-gradient-start: #1e3c72;
+            --bg-gradient-end: #2a5298;
+            --shadow-color: rgba(0, 0, 0, 0.5);
+        }
+
+        body.light-mode {
+            --bg-primary: #f5f5f5;
+            --bg-secondary: #ffffff;
+            --text-primary: #1e3c72;
+            --border-color: #2a5298;
+            --bg-gradient-start: #e8f4f8;
+            --bg-gradient-end: #d0e8f2;
+            --shadow-color: rgba(0, 0, 0, 0.2);
+        }
+
         body {
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
             font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             padding: 20px;
+            transition: background 0.3s ease;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            right: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .mode-toggle, .install-btn {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+        }
+
+        .mode-toggle:hover, .install-btn:hover {
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .install-btn {
+            display: none;
+        }
+
+        .install-btn.show {
+            display: block;
         }
 
         .container {
@@ -27,50 +88,60 @@
             flex-wrap: wrap;
             justify-content: center;
             align-items: flex-start;
+            margin-top: 80px;
+        }
+
+        .main-section {
+            display: flex;
+            gap: 20px;
+            flex-direction: column;
         }
 
         .calculator {
-            background: #0f1419;
+            background: var(--bg-primary);
             border-radius: 25px;
-            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5), 0 0 40px rgba(42, 82, 152, 0.3);
+            box-shadow: 0 25px 80px var(--shadow-color), 0 0 40px rgba(42, 82, 152, 0.3);
             padding: 25px;
             width: 400px;
-            border: 2px solid #2a5298;
+            border: 2px solid var(--border-color);
+            transition: all 0.3s ease;
         }
 
         .display {
-            background: linear-gradient(135deg, #1a2a3a 0%, #0f1419 100%);
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
             border-radius: 15px;
             padding: 20px;
             margin-bottom: 15px;
             text-align: right;
             font-size: 2.2em;
             font-weight: 700;
-            color: #00d4ff;
+            color: var(--text-primary);
             word-wrap: break-word;
             word-break: break-all;
             min-height: 60px;
             display: flex;
             align-items: center;
             justify-content: flex-end;
-            border: 2px solid #2a5298;
+            border: 2px solid var(--border-color);
             box-shadow: inset 0 0 20px rgba(0, 212, 255, 0.1);
             text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
             font-family: 'Courier New', monospace;
+            transition: all 0.3s ease;
         }
 
         .display-expression {
-            background: #1a2a3a;
+            background: var(--bg-secondary);
             border-radius: 10px;
             padding: 10px 15px;
             margin-bottom: 10px;
             text-align: right;
             font-size: 1em;
-            color: #00d4ff;
+            color: var(--text-primary);
             opacity: 0.7;
             min-height: 25px;
-            border: 1px solid #2a5298;
+            border: 1px solid var(--border-color);
             font-family: 'Courier New', monospace;
+            transition: all 0.3s ease;
         }
 
         .buttons {
@@ -82,7 +153,7 @@
 
         .btn {
             padding: 15px;
-            border: 2px solid #2a5298;
+            border: 2px solid var(--border-color);
             border-radius: 10px;
             font-size: 0.9em;
             font-weight: 600;
@@ -90,6 +161,8 @@
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
         }
 
         .btn::before {
@@ -110,22 +183,11 @@
 
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 8px 20px var(--shadow-color);
         }
 
         .btn:active {
             transform: translateY(-1px);
-        }
-
-        .btn-number {
-            background: #1a2a3a;
-            color: #00d4ff;
-            border-color: #2a5298;
-        }
-
-        .btn-number:hover {
-            background: #2a3a4a;
-            box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
         }
 
         .btn-operator {
@@ -134,22 +196,12 @@
             border-color: #ff6b6b;
         }
 
-        .btn-operator:hover {
-            background: linear-gradient(135deg, #ff7a7a 0%, #ff5a6f 100%);
-            box-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
-        }
-
         .btn-equals {
             background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
-            color: #0f1419;
+            color: var(--bg-primary);
             border-color: #00d4ff;
             font-weight: 700;
             grid-column: span 2;
-        }
-
-        .btn-equals:hover {
-            background: linear-gradient(135deg, #00e4ff 0%, #00aadd 100%);
-            box-shadow: 0 0 25px rgba(0, 212, 255, 0.6);
         }
 
         .btn-function {
@@ -159,21 +211,11 @@
             border-color: #ffa500;
         }
 
-        .btn-function:hover {
-            background: linear-gradient(135deg, #ffb520 0%, #ffa500 100%);
-            box-shadow: 0 0 20px rgba(255, 165, 0, 0.5);
-        }
-
         .btn-trig {
             background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
             color: white;
             font-size: 0.85em;
             border-color: #9b59b6;
-        }
-
-        .btn-trig:hover {
-            background: linear-gradient(135deg, #a569c1 0%, #9d54b8 100%);
-            box-shadow: 0 0 20px rgba(155, 89, 182, 0.5);
         }
 
         .btn-advanced {
@@ -183,25 +225,142 @@
             border-color: #1abc9c;
         }
 
-        .btn-advanced:hover {
-            background: linear-gradient(135deg, #2ccbb1 0%, #1fb893 100%);
-            box-shadow: 0 0 20px rgba(26, 188, 156, 0.5);
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            padding: 10px 15px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-btn.active {
+            border-bottom-color: var(--text-primary);
+            opacity: 1;
+        }
+
+        .tab-btn:not(.active) {
+            opacity: 0.6;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .unit-converter {
+            background: var(--bg-primary);
+            border-radius: 25px;
+            box-shadow: 0 25px 80px var(--shadow-color), 0 0 40px rgba(42, 82, 152, 0.3);
+            padding: 25px;
+            width: 400px;
+            border: 2px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .converter-group {
+            margin-bottom: 20px;
+        }
+
+        .converter-label {
+            color: var(--text-primary);
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }
+
+        .converter-input {
+            width: 100%;
+            padding: 10px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 1em;
+            margin-bottom: 8px;
+        }
+
+        .converter-select {
+            width: 100%;
+            padding: 10px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.9em;
+            margin-bottom: 8px;
+        }
+
+        .converter-result {
+            background: var(--bg-secondary);
+            border: 2px solid var(--text-primary);
+            border-radius: 8px;
+            padding: 12px;
+            color: var(--text-primary);
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .formula-section {
+            background: var(--bg-primary);
+            border-radius: 25px;
+            box-shadow: 0 25px 80px var(--shadow-color), 0 0 40px rgba(42, 82, 152, 0.3);
+            padding: 25px;
+            width: 400px;
+            border: 2px solid var(--border-color);
+            max-height: 400px;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+        }
+
+        .formula-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .formula-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #00d4ff;
+        }
+
+        .formula-desc {
+            font-size: 0.85em;
+            opacity: 0.8;
+            font-family: 'Courier New', monospace;
         }
 
         .history-panel {
-            background: #0f1419;
+            background: var(--bg-primary);
             border-radius: 25px;
-            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5), 0 0 40px rgba(42, 82, 152, 0.3);
+            box-shadow: 0 25px 80px var(--shadow-color), 0 0 40px rgba(42, 82, 152, 0.3);
             padding: 25px;
             width: 300px;
-            border: 2px solid #2a5298;
+            border: 2px solid var(--border-color);
             max-height: 600px;
             display: flex;
             flex-direction: column;
+            transition: all 0.3s ease;
         }
 
         .history-title {
-            color: #00d4ff;
+            color: var(--text-primary);
             font-size: 1.2em;
             font-weight: 700;
             margin-bottom: 15px;
@@ -216,12 +375,12 @@
         }
 
         .history-item {
-            background: #1a2a3a;
-            border: 1px solid #2a5298;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
             border-radius: 8px;
             padding: 10px;
             margin-bottom: 8px;
-            color: #00d4ff;
+            color: var(--text-primary);
             font-size: 0.85em;
             cursor: pointer;
             transition: all 0.2s ease;
@@ -239,9 +398,15 @@
         }
 
         .history-result {
-            color: #00d4ff;
+            color: var(--text-primary);
             font-weight: 600;
             margin-top: 3px;
+        }
+
+        .history-timestamp {
+            color: #666;
+            font-size: 0.7em;
+            margin-top: 2px;
         }
 
         .clear-history-btn {
@@ -257,7 +422,6 @@
         }
 
         .clear-history-btn:hover {
-            background: linear-gradient(135deg, #ff7a7a 0%, #ff5a6f 100%);
             box-shadow: 0 0 15px rgba(255, 107, 107, 0.5);
         }
 
@@ -267,9 +431,9 @@
             margin-top: 10px;
             text-align: center;
             padding: 10px;
-            background: #1a2a3a;
+            background: var(--bg-secondary);
             border-radius: 8px;
-            border: 1px solid #2a5298;
+            border: 1px solid var(--border-color);
         }
 
         ::-webkit-scrollbar {
@@ -277,73 +441,211 @@
         }
 
         ::-webkit-scrollbar-track {
-            background: #1a2a3a;
+            background: var(--bg-secondary);
             border-radius: 10px;
         }
 
         ::-webkit-scrollbar-thumb {
-            background: #2a5298;
+            background: var(--border-color);
             border-radius: 10px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: #00d4ff;
+            background: var(--text-primary);
         }
 
-        @media (max-width: 900px) {
+        @media (max-width: 1200px) {
             .container {
                 flex-direction: column;
                 align-items: center;
             }
 
             .calculator,
-            .history-panel {
+            .history-panel,
+            .unit-converter,
+            .formula-section {
                 width: 100%;
                 max-width: 400px;
+            }
+        }
+
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--text-primary);
+            color: var(--text-primary);
+            padding: 15px 20px;
+            border-radius: 8px;
+            animation: slideIn 0.3s ease;
+            z-index: 1001;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
             }
         }
     </style>
 </head>
 <body>
+    <div class="header">
+        <button class="mode-toggle" onclick="toggleDarkMode()">🌙 Dark</button>
+        <button class="install-btn" id="installBtn" onclick="installApp()">📲 Install App</button>
+    </div>
+
     <div class="container">
-        <div class="calculator">
-            <div class="display-expression" id="expression">0</div>
-            <div class="display" id="display">0</div>
+        <div class="main-section">
+            <div class="calculator">
+                <div class="display-expression" id="expression">0</div>
+                <div class="display" id="display">0</div>
 
-            <div class="buttons">
-                <button class="btn btn-function" onclick="calculator.clear()" title="Clear">C</button>
-                <button class="btn btn-function" onclick="calculator.delete()" title="Delete">DEL</button>
-                <button class="btn btn-advanced" onclick="calculator.addFunction('sqrt')" title="Square Root">√</button>
-                <button class="btn btn-advanced" onclick="calculator.addFunction('percent')" title="Percentage">%</button>
-                <button class="btn btn-operator" onclick="calculator.setOperator('/')" title="Divide">/</button>
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab('calculator')">Calculator</button>
+                    <button class="tab-btn" onclick="switchTab('converter')">Converter</button>
+                    <button class="tab-btn" onclick="switchTab('formulas')">Formulas</button>
+                </div>
 
-                <button class="btn btn-number" onclick="calculator.addNumber('7')">7</button>
-                <button class="btn btn-number" onclick="calculator.addNumber('8')">8</button>
-                <button class="btn btn-number" onclick="calculator.addNumber('9')">9</button>
-                <button class="btn btn-operator" onclick="calculator.setOperator('*')" title="Multiply">×</button>
-                <button class="btn btn-operator" onclick="calculator.setOperator('-')" title="Subtract">−</button>
+                <div id="calculator" class="tab-content active">
+                    <div class="buttons">
+                        <button class="btn btn-function" onclick="calculator.clear()" title="Clear">C</button>
+                        <button class="btn btn-function" onclick="calculator.delete()" title="Delete">DEL</button>
+                        <button class="btn btn-advanced" onclick="calculator.addFunction('sqrt')" title="Square Root">√</button>
+                        <button class="btn btn-advanced" onclick="calculator.addFunction('percent')" title="Percentage">%</button>
+                        <button class="btn btn-operator" onclick="calculator.setOperator('/')" title="Divide">/</button>
 
-                <button class="btn btn-number" onclick="calculator.addNumber('4')">4</button>
-                <button class="btn btn-number" onclick="calculator.addNumber('5')">5</button>
-                <button class="btn btn-number" onclick="calculator.addNumber('6')">6</button>
-                <button class="btn btn-trig" onclick="calculator.addFunction('sin')" title="Sine">sin</button>
-                <button class="btn btn-operator" onclick="calculator.setOperator('+')" title="Add">+</button>
+                        <button class="btn btn-number" onclick="calculator.addNumber('7')">7</button>
+                        <button class="btn btn-number" onclick="calculator.addNumber('8')">8</button>
+                        <button class="btn btn-number" onclick="calculator.addNumber('9')">9</button>
+                        <button class="btn btn-operator" onclick="calculator.setOperator('*')" title="Multiply">×</button>
+                        <button class="btn btn-operator" onclick="calculator.setOperator('-')" title="Subtract">−</button>
 
-                <button class="btn btn-number" onclick="calculator.addNumber('1')">1</button>
-                <button class="btn btn-number" onclick="calculator.addNumber('2')">2</button>
-                <button class="btn btn-number" onclick="calculator.addNumber('3')">3</button>
-                <button class="btn btn-trig" onclick="calculator.addFunction('cos')" title="Cosine">cos</button>
-                <button class="btn btn-trig" onclick="calculator.addFunction('tan')" title="Tangent">tan</button>
+                        <button class="btn btn-number" onclick="calculator.addNumber('4')">4</button>
+                        <button class="btn btn-number" onclick="calculator.addNumber('5')">5</button>
+                        <button class="btn btn-number" onclick="calculator.addNumber('6')">6</button>
+                        <button class="btn btn-trig" onclick="calculator.addFunction('sin')" title="Sine">sin</button>
+                        <button class="btn btn-operator" onclick="calculator.setOperator('+')" title="Add">+</button>
 
-                <button class="btn btn-number" onclick="calculator.addNumber('0')">0</button>
-                <button class="btn btn-number" onclick="calculator.addNumber('.')">.</button>
-                <button class="btn btn-advanced" onclick="calculator.addFunction('pi')" title="Pi">π</button>
-                <button class="btn btn-advanced" onclick="calculator.addFunction('power')" title="Power">x²</button>
-                <button class="btn btn-equals" onclick="calculator.calculate()">=</button>
-            </div>
+                        <button class="btn btn-number" onclick="calculator.addNumber('1')">1</button>
+                        <button class="btn btn-number" onclick="calculator.addNumber('2')">2</button>
+                        <button class="btn btn-number" onclick="calculator.addNumber('3')">3</button>
+                        <button class="btn btn-trig" onclick="calculator.addFunction('cos')" title="Cosine">cos</button>
+                        <button class="btn btn-trig" onclick="calculator.addFunction('tan')" title="Tangent">tan</button>
 
-            <div class="keyboard-info">
-                ⌨️ Keyboard Support: Numbers (0-9), Operators (+,-,*,/), Enter (=), Backspace (DEL), C (Clear)
+                        <button class="btn btn-number" onclick="calculator.addNumber('0')">0</button>
+                        <button class="btn btn-number" onclick="calculator.addNumber('.')">.</button>
+                        <button class="btn btn-advanced" onclick="calculator.addFunction('pi')" title="Pi">π</button>
+                        <button class="btn btn-advanced" onclick="calculator.addFunction('power')" title="Power">x²</button>
+                        <button class="btn btn-equals" onclick="calculator.calculate()">=</button>
+                    </div>
+                </div>
+
+                <div id="converter" class="tab-content">
+                    <div class="converter-group">
+                        <div class="converter-label">Length</div>
+                        <input type="number" class="converter-input" id="lengthInput" placeholder="Enter value" oninput="convertLength()">
+                        <select class="converter-select" id="lengthFrom" onchange="convertLength()">
+                            <option value="m">Meters (m)</option>
+                            <option value="km">Kilometers (km)</option>
+                            <option value="cm">Centimeters (cm)</option>
+                            <option value="mm">Millimeters (mm)</option>
+                            <option value="ft">Feet (ft)</option>
+                            <option value="in">Inches (in)</option>
+                            <option value="mi">Miles (mi)</option>
+                        </select>
+                        <select class="converter-select" id="lengthTo" onchange="convertLength()">
+                            <option value="m">Meters (m)</option>
+                            <option value="km">Kilometers (km)</option>
+                            <option value="cm">Centimeters (cm)</option>
+                            <option value="mm">Millimeters (mm)</option>
+                            <option value="ft">Feet (ft)</option>
+                            <option value="in">Inches (in)</option>
+                            <option value="mi">Miles (mi)</option>
+                        </select>
+                        <div class="converter-result" id="lengthResult">0 m</div>
+                    </div>
+
+                    <div class="converter-group">
+                        <div class="converter-label">Temperature</div>
+                        <input type="number" class="converter-input" id="tempInput" placeholder="Enter value" oninput="convertTemp()">
+                        <select class="converter-select" id="tempFrom" onchange="convertTemp()">
+                            <option value="C">Celsius (°C)</option>
+                            <option value="F">Fahrenheit (°F)</option>
+                            <option value="K">Kelvin (K)</option>
+                        </select>
+                        <select class="converter-select" id="tempTo" onchange="convertTemp()">
+                            <option value="C">Celsius (°C)</option>
+                            <option value="F">Fahrenheit (°F)</option>
+                            <option value="K">Kelvin (K)</option>
+                        </select>
+                        <div class="converter-result" id="tempResult">0 °C</div>
+                    </div>
+
+                    <div class="converter-group">
+                        <div class="converter-label">Weight</div>
+                        <input type="number" class="converter-input" id="weightInput" placeholder="Enter value" oninput="convertWeight()">
+                        <select class="converter-select" id="weightFrom" onchange="convertWeight()">
+                            <option value="kg">Kilograms (kg)</option>
+                            <option value="g">Grams (g)</option>
+                            <option value="mg">Milligrams (mg)</option>
+                            <option value="lb">Pounds (lb)</option>
+                            <option value="oz">Ounces (oz)</option>
+                        </select>
+                        <select class="converter-select" id="weightTo" onchange="convertWeight()">
+                            <option value="kg">Kilograms (kg)</option>
+                            <option value="g">Grams (g)</option>
+                            <option value="mg">Milligrams (mg)</option>
+                            <option value="lb">Pounds (lb)</option>
+                            <option value="oz">Ounces (oz)</option>
+                        </select>
+                        <div class="converter-result" id="weightResult">0 kg</div>
+                    </div>
+                </div>
+
+                <div id="formulas" class="tab-content">
+                    <div class="formula-item">
+                        <div class="formula-title">Area of Circle</div>
+                        <div class="formula-desc">A = πr²</div>
+                    </div>
+                    <div class="formula-item">
+                        <div class="formula-title">Pythagorean Theorem</div>
+                        <div class="formula-desc">c² = a² + b²</div>
+                    </div>
+                    <div class="formula-item">
+                        <div class="formula-title">Quadratic Formula</div>
+                        <div class="formula-desc">x = (-b ± √(b² - 4ac)) / 2a</div>
+                    </div>
+                    <div class="formula-item">
+                        <div class="formula-title">Volume of Sphere</div>
+                        <div class="formula-desc">V = (4/3)πr³</div>
+                    </div>
+                    <div class="formula-item">
+                        <div class="formula-title">Kinetic Energy</div>
+                        <div class="formula-desc">KE = ½mv²</div>
+                    </div>
+                    <div class="formula-item">
+                        <div class="formula-title">Force (Newton's 2nd Law)</div>
+                        <div class="formula-desc">F = ma</div>
+                    </div>
+                    <div class="formula-item">
+                        <div class="formula-title">Ohm's Law</div>
+                        <div class="formula-desc">V = IR</div>
+                    </div>
+                    <div class="formula-item">
+                        <div class="formula-title">Energy</div>
+                        <div class="formula-desc">E = mc²</div>
+                    </div>
+                </div>
+
+                <div class="keyboard-info">
+                    ⌨️ Keyboard Support: Numbers (0-9), Operators (+,-,*,/), Enter (=), Backspace (DEL), C (Clear)
+                </div>
             </div>
         </div>
 
@@ -355,6 +657,112 @@
     </div>
 
     <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed:', err));
+        }
+
+        let deferredPrompt = null;
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installBtn').classList.add('show');
+        });
+
+        function installApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        showNotification('App installed successfully!');
+                    }
+                    deferredPrompt = null;
+                });
+            }
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('light-mode');
+            localStorage.setItem('theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function convertLength() {
+            const value = parseFloat(document.getElementById('lengthInput').value) || 0;
+            const from = document.getElementById('lengthFrom').value;
+            const to = document.getElementById('lengthTo').value;
+
+            const toMeters = {
+                'm': 1,
+                'km': 1000,
+                'cm': 0.01,
+                'mm': 0.001,
+                'ft': 0.3048,
+                'in': 0.0254,
+                'mi': 1609.34
+            };
+
+            const meters = value * toMeters[from];
+            const result = meters / toMeters[to];
+            document.getElementById('lengthResult').textContent = result.toFixed(6) + ' ' + to;
+        }
+
+        function convertTemp() {
+            const value = parseFloat(document.getElementById('tempInput').value) || 0;
+            const from = document.getElementById('tempFrom').value;
+            const to = document.getElementById('tempTo').value;
+
+            let celsius;
+            if (from === 'C') celsius = value;
+            else if (from === 'F') celsius = (value - 32) * 5/9;
+            else if (from === 'K') celsius = value - 273.15;
+
+            let result;
+            if (to === 'C') result = celsius;
+            else if (to === 'F') result = (celsius * 9/5) + 32;
+            else if (to === 'K') result = celsius + 273.15;
+
+            const symbol = { 'C': '°C', 'F': '°F', 'K': 'K' };
+            document.getElementById('tempResult').textContent = result.toFixed(2) + ' ' + symbol[to];
+        }
+
+        function convertWeight() {
+            const value = parseFloat(document.getElementById('weightInput').value) || 0;
+            const from = document.getElementById('weightFrom').value;
+            const to = document.getElementById('weightTo').value;
+
+            const toKg = {
+                'kg': 1,
+                'g': 0.001,
+                'mg': 0.000001,
+                'lb': 0.453592,
+                'oz': 0.0283495
+            };
+
+            const kg = value * toKg[from];
+            const result = kg / toKg[to];
+            document.getElementById('weightResult').textContent = result.toFixed(6) + ' ' + to;
+        }
+
+        function showNotification(message) {
+            const notif = document.createElement('div');
+            notif.className = 'notification';
+            notif.textContent = message;
+            document.body.appendChild(notif);
+            setTimeout(() => notif.remove(), 3000);
+        }
+
+        // Load theme preference
+        if (localStorage.getItem('theme') === 'light') {
+            document.body.classList.add('light-mode');
+        }
+
         const calculator = {
             display: null,
             expressionDisplay: null,
@@ -521,7 +929,7 @@
 
             updateHistoryDisplay() {
                 this.historyList.innerHTML = '';
-                this.history.slice(0, 20).forEach(item => {
+                this.history.slice(0, 50).forEach(item => {
                     const div = document.createElement('div');
                     div.className = 'history-item';
                     div.onclick = () => {
@@ -531,6 +939,7 @@
                     div.innerHTML = `
                         <div class="history-expression">${item.expression}</div>
                         <div class="history-result">${parseFloat(item.result).toFixed(8)}</div>
+                        <div class="history-timestamp">${item.timestamp}</div>
                     `;
                     this.historyList.appendChild(div);
                 });
